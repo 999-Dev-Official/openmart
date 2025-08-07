@@ -362,7 +362,3 @@ npm run clean
 ## License
 
 MIT
-
-## Support
-
-For issues, questions, or suggestions, please visit our [GitHub repository](https://github.com/openmart-ai/openmart-ts).
