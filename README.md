@@ -50,10 +50,6 @@ console.log(results);
 ```typescript
 const openmart = new OpenMart({
   apiKey: "your-api-key", // Required: Your OpenMart API key
-  headers: {
-    // Optional: Additional headers
-    "X-Custom-Header": "value",
-  },
 });
 ```
 
