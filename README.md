@@ -123,15 +123,19 @@ const idResults = await openmart.search.onlyIds({
 });
 
 // Response with estimate_total: true
-if ('data' in idResults) {
+if ("data" in idResults) {
   console.log(`Found ${idResults.total_count} total matches`);
-  idResults.data.forEach(result => {
-    console.log(`ID: ${result.id}, Place ID: ${result.place_id}, Score: ${result.match_score}`);
+  idResults.data.forEach((result) => {
+    console.log(
+      `ID: ${result.id}, Place ID: ${result.place_id}, Score: ${result.match_score}`
+    );
   });
 } else {
   // Response with estimate_total: false (default)
-  idResults.forEach(result => {
-    console.log(`ID: ${result.id}, Place ID: ${result.place_id}, Score: ${result.match_score}`);
+  idResults.forEach((result) => {
+    console.log(
+      `ID: ${result.id}, Place ID: ${result.place_id}, Score: ${result.match_score}`
+    );
   });
 }
 ```
