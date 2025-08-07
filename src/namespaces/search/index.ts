@@ -3,7 +3,6 @@ import {
   SearchRequest,
   SearchResponse,
   SearchResponseWithCount,
-  SearchMatch,
   OnlyIDsResponse,
   OnlyIDsResponseWithCount,
   OpenMartError,
