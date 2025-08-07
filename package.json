@@ -1,0 +1,43 @@
+{
+  "name": "openmart",
+  "version": "1.0.0",
+  "description": "A TypeScript client for the OpenMart API",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "npx tsc",
+    "clean": "rm -rf dist",
+    "prepare": "npm run clean && npm run build",
+    "test": "npm run build && node test/test.js"
+  },
+  "keywords": [
+    "openmart",
+    "api",
+    "client",
+    "typescript",
+    "marketplace",
+    "search"
+  ],
+  "author": "OpenMart",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/999-Dev-Official/openmart.git"
+  },
+  "bugs": {
+    "url": "https://github.com/999-Dev-Official/openmart/issues"
+  },
+  "homepage": "https://github.com/999-Dev-Official/openmart#readme",
+  "files": [
+    "dist/**/*",
+    "README.md",
+    "LICENSE"
+  ],
+  "dependencies": {
+    "axios": "^1.7.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "typescript": "^5.9.2"
+  }
+}
