@@ -1,6 +1,6 @@
 {
   "name": "openmart",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "A TypeScript client for the OpenMart API",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -22,12 +22,12 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/999-Dev-Official/openmart.git"
+    "url": "https://github.com/999-Dev-Official/openmart-api-ts.git"
   },
   "bugs": {
-    "url": "https://github.com/999-Dev-Official/openmart/issues"
+    "url": "https://github.com/999-Dev-Official/openmart-api-ts/issues"
   },
-  "homepage": "https://github.com/999-Dev-Official/openmart#readme",
+  "homepage": "https://github.com/999-Dev-Official/openmart-api-ts#readme",
   "files": [
     "dist/**/*",
     "README.md",

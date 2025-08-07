@@ -1,4 +1,4 @@
-# OpenMart TypeScript Client
+# Unofficial OpenMart TypeScript Client
 
 A TypeScript client library for the OpenMart API, providing easy access to business lead search and marketplace functionality.
 
