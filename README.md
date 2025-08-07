@@ -48,8 +48,6 @@ console.log(results.products);
 ```typescript
 const openmart = new OpenMart({
   apiKey: "your-api-key", // Required: Your OpenMart API key
-  baseURL: "https://custom.url", // Optional: Custom API endpoint
-  timeout: 30000, // Optional: Request timeout in ms
   headers: {
     // Optional: Additional headers
     "X-Custom-Header": "value",
