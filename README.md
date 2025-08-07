@@ -23,7 +23,7 @@ const openmart = new OpenMart({
 });
 
 // Search for business leads
-const results = await openmart.search.execute({
+const results = await openmart.search.query({
   query: "coffee shops",
   location: {
     coordinates: { latitude: 37.7749, longitude: -122.4194 },
@@ -59,12 +59,12 @@ const openmart = new OpenMart({
 
 ### Search Methods
 
-#### `search.execute(request)`
+#### `search.query(request)`
 
 The main search method that accepts all available parameters for finding business leads.
 
 ```typescript
-const results = await openmart.search.execute({
+const results = await openmart.search.query({
   // Basic search
   query: "restaurants",
   limit: 50, // Max 500 per request
@@ -105,6 +105,37 @@ const results = await openmart.search.execute({
 });
 ```
 
+#### `search.onlyIds(request)`
+
+A more efficient method that returns only the IDs and metadata of matching businesses, without the full business data. This is useful when you need to quickly get identifiers for further processing or when you want to check the number of matching results.
+
+```typescript
+const idResults = await openmart.search.onlyIds({
+  // Same parameters as search.query()
+  query: "coffee shops",
+  location: {
+    city: "San Francisco",
+    state: "CA",
+  },
+  has_contact_info: true,
+  limit: 100, // Max 1000 per request for onlyIds
+  estimate_total: true, // Get total count of matching results
+});
+
+// Response with estimate_total: true
+if ('data' in idResults) {
+  console.log(`Found ${idResults.total_count} total matches`);
+  idResults.data.forEach(result => {
+    console.log(`ID: ${result.id}, Place ID: ${result.place_id}, Score: ${result.match_score}`);
+  });
+} else {
+  // Response with estimate_total: false (default)
+  idResults.forEach(result => {
+    console.log(`ID: ${result.id}, Place ID: ${result.place_id}, Score: ${result.match_score}`);
+  });
+}
+```
+
 ### Manual Pagination
 
 To paginate through results, use the cursor from the last item of each response:
@@ -114,7 +145,7 @@ let cursor = undefined;
 let allResults = [];
 
 // Get first page
-let response = await openmart.search.execute({
+let response = await openmart.search.query({
   query: "restaurants",
   limit: 100,
   cursor: cursor,
@@ -124,7 +155,7 @@ allResults.push(...response);
 // Continue fetching while there are more results
 while (response.length === 100 && response[response.length - 1]?.cursor) {
   cursor = response[response.length - 1].cursor;
-  response = await openmart.search.execute({
+  response = await openmart.search.query({
     query: "restaurants",
     limit: 100,
     cursor: cursor,
@@ -199,7 +230,7 @@ The client provides detailed error information through the `OpenMartError` class
 
 ```typescript
 try {
-  const results = await openmart.search.execute({ query: "restaurants" });
+  const results = await openmart.search.query({ query: "restaurants" });
 } catch (error) {
   if (error instanceof OpenMartError) {
     console.error("Error code:", error.code);
@@ -232,7 +263,7 @@ const openmart = new OpenMart({
 async function searchBusinesses() {
   try {
     // Search for high-rated restaurants with contact info
-    const results = await openmart.search.execute({
+    const results = await openmart.search.query({
       query: "italian restaurants",
       location: {
         coordinates: { latitude: 40.7128, longitude: -74.006 },
@@ -276,7 +307,7 @@ searchBusinesses();
 ```typescript
 async function searchNearby() {
   // Search for businesses near a specific location
-  const results = await openmart.search.execute({
+  const results = await openmart.search.query({
     query: "auto repair shops",
     location: {
       coordinates: {

@@ -1,21 +1,4 @@
-// Configuration
-export interface OpenMartConfig {
-  apiKey: string;
-}
-
-// Location Types
-export interface GmapLeadSearchLocParams {
-  city?: string;
-  state?: string;
-  country?: string;
-  coordinates?: {
-    latitude: number;
-    longitude: number;
-  };
-  geo_radius?: number; // in meters
-}
-
-export type Location = GmapLeadSearchLocParams | GmapLeadSearchLocParams[];
+// Business Entity Types and Enums
 
 // Enums
 export type BizOwnershipType = "INDEPENDENT" | "FAMILY" | "FRANCHISE" | "CHAIN";
@@ -43,39 +26,6 @@ export type BizCategory =
   | "PUBLIC_SERVICES_GOVERNMENT"
   | "PET_SERVICES_SUPPLIES"
   | "OTHER";
-
-// Search Request Types
-export interface SearchRequest {
-  query?: string | null;
-  location?: Location | null;
-  min_locations?: number | null;
-  max_locations?: number | null;
-  has_contact_info?: boolean | null;
-  min_total_reviews?: number | null;
-  max_total_reviews?: number | null;
-  ownership_type?: BizOwnershipType | null;
-  min_price_tier?: number | null;
-  max_price_tier?: number | null;
-  min_overall_rating?: number | null;
-  max_overall_rating?: number | null;
-  limit?: number; // 0 < limit <= 500, default: 50
-  cursor?: any | null;
-  pagination?: {
-    cursor?: any;
-    limit?: number;
-  } | null; // deprecated
-  has_website?: boolean | null;
-  estimate_total?: boolean; // default: false
-  exclude_root_domains?: string[]; // max 10000 items
-  exclude_keywords?: string[]; // max 64 items
-  include_keywords?: string[]; // max 64 items
-  has_valid_website?: boolean | null;
-  open_date_before?: string | null; // unix timestamp
-  open_date_after?: string | null; // unix timestamp
-  store_name?: string | null;
-  info_updated_before?: string | null; // unix timestamp
-  info_updated_after?: string | null; // unix timestamp
-}
 
 // Staff Types
 export interface Staff {
@@ -140,51 +90,4 @@ export interface LegacyBrandStoreLocationView {
   open_date?: string | null; // date-time
   info_refreshed_at?: string | null; // date-time
   [key: string]: any; // For additional fields
-}
-
-// Search Match wrapper
-export interface SearchMatch {
-  id: string;
-  content: LegacyBrandStoreLocationView;
-  match_score?: number | null;
-  match_highlights: string[];
-  cursor?: any | null;
-}
-
-// Response Types
-export type SearchResponse = SearchMatch[];
-
-export interface SearchResponseWithCount {
-  data: SearchMatch[];
-  total_count: number;
-}
-
-// Simplified Lead type for easier use
-export type Lead = SearchMatch;
-
-// Error Types
-export interface ApiError {
-  message: string;
-  code?: string;
-  statusCode?: number;
-  details?: any;
-}
-
-export class OpenMartError extends Error {
-  code?: string;
-  statusCode?: number;
-  details?: any;
-
-  constructor(
-    message: string,
-    code?: string,
-    statusCode?: number,
-    details?: any
-  ) {
-    super(message);
-    this.name = "OpenMartError";
-    this.code = code;
-    this.statusCode = statusCode;
-    this.details = details;
-  }
 }
