@@ -1,7 +1,6 @@
 // Configuration
 export interface OpenMartConfig {
   apiKey: string;
-  headers?: Record<string, string>;
 }
 
 // Location Types

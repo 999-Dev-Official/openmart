@@ -1,6 +1,6 @@
 # OpenMart TypeScript Client
 
-A TypeScript client library for the OpenMart API, providing easy access to product search and marketplace functionality.
+A TypeScript client library for the OpenMart API, providing easy access to business lead search and marketplace functionality.
 
 ## Installation
 
@@ -22,22 +22,24 @@ const openmart = new OpenMart({
   apiKey: "your-api-key-here",
 });
 
-// Search for products
-const results = await openmart.search.products({
-  query: "laptop",
-  num: 10,
-  min_price: 500,
-  max_price: 1500,
+// Search for business leads
+const results = await openmart.search.execute({
+  query: "coffee shops",
+  location: {
+    coordinates: { latitude: 37.7749, longitude: -122.4194 },
+    geo_radius: 5000,
+  },
+  limit: 50,
 });
 
-console.log(results.products);
+console.log(results);
 ```
 
 ## Features
 
-- 🔍 **Product Search**: Comprehensive search with multiple filter options
+- 🔍 **Business Lead Search**: Comprehensive search with multiple filter options
 - 🎯 **Type Safety**: Full TypeScript support with detailed type definitions
-- ⚡ **Convenience Methods**: Simplified methods for common search patterns
+- 📍 **Location-Based Search**: Search by coordinates, radius, and geographic areas
 - 🛡️ **Error Handling**: Robust error handling with detailed error messages
 - 🔧 **Configurable**: Customizable timeouts, headers, and base URL
 
@@ -57,103 +59,137 @@ const openmart = new OpenMart({
 
 ### Search Methods
 
-#### `search.products(request)`
+#### `search.execute(request)`
 
-Full product search with all available filters.
+The main search method that accepts all available parameters for finding business leads.
 
 ```typescript
-const results = await openmart.search.products({
-  query: "wireless headphones",
-  exact_match: false,
-  num: 20,
-  min_quantity: 10,
-  min_seller_rating: 4.0,
-  min_product_rating: 3.5,
-  max_shipping_days: 7,
-  min_price: 50,
-  max_price: 200,
+const results = await openmart.search.execute({
+  // Basic search
+  query: "restaurants",
+  limit: 50, // Max 500 per request
+  cursor: undefined, // For pagination - use the cursor from the last item of previous results
+
+  // Location filters
+  location: {
+    coordinates: { latitude: 37.7749, longitude: -122.4194 },
+    geo_radius: 5000, // In meters
+  },
+
+  // Business filters
+  has_contact_info: true,
+  has_website: true,
+  has_valid_website: true,
+  store_name: "Starbucks",
+
+  // Review and rating filters
+  min_total_reviews: 10,
+  min_overall_rating: 4.0,
+
+  // Business characteristics
+  ownership_type: "FRANCHISE",
+  min_price_tier: 2,
+  max_price_tier: 4,
+
+  // Keyword filters
+  include_keywords: ["organic", "vegan"],
+  exclude_keywords: ["fast food"],
+
+  // Date filters (Unix timestamps)
+  info_updated_after: "1672531200",
+  open_date_after: "1640995200",
+  open_date_before: "1672531200",
+
+  // Count estimation
+  estimate_total: false, // Set to true to get total count
 });
 ```
 
-#### `search.simple(query, options?)`
+### Manual Pagination
 
-Simplified search that returns just the products array.
+To paginate through results, use the cursor from the last item of each response:
 
 ```typescript
-const products = await openmart.search.simple("bluetooth speaker", {
-  num: 5,
-  min_product_rating: 4,
+let cursor = undefined;
+let allResults = [];
+
+// Get first page
+let response = await openmart.search.execute({
+  query: "restaurants",
+  limit: 100,
+  cursor: cursor,
 });
-```
+allResults.push(...response);
 
-#### `search.exact(query, options?)`
+// Continue fetching while there are more results
+while (response.length === 100 && response[response.length - 1]?.cursor) {
+  cursor = response[response.length - 1].cursor;
+  response = await openmart.search.execute({
+    query: "restaurants",
+    limit: 100,
+    cursor: cursor,
+  });
+  allResults.push(...response);
+}
 
-Search for exact product matches.
-
-```typescript
-const products = await openmart.search.exact("Apple AirPods Pro");
-```
-
-#### `search.byPriceRange(query, minPrice?, maxPrice?, options?)`
-
-Search within a specific price range.
-
-```typescript
-const products = await openmart.search.byPriceRange(
-  "tablet",
-  200, // min price
-  800, // max price
-  { num: 10 }
-);
-```
-
-#### `search.highRated(query, minRating?, options?)`
-
-Search for highly-rated products.
-
-```typescript
-const products = await openmart.search.highRated("coffee maker", 4.5);
-```
-
-#### `search.fastShipping(query, maxDays?, options?)`
-
-Search for products with fast shipping.
-
-```typescript
-const products = await openmart.search.fastShipping("phone case", 3);
+console.log(`Total results fetched: ${allResults.length}`);
 ```
 
 ## Response Types
 
-### Product
+### SearchMatch
 
 ```typescript
-interface Product {
-  title: string;
-  description?: string;
-  url: string;
-  images?: ProductImage[];
-  price?: PriceInfo;
-  moq?: number; // Minimum order quantity
-  in_stock?: boolean;
-  shipping?: ShippingInfo;
-  seller?: SellerInfo;
-  rating?: ProductRating;
-  specifications?: Record<string, any>;
-  category?: string[];
-  sku?: string;
-  brand?: string;
+interface SearchMatch {
+  cursor?: any;
+  content: LegacyBrandStoreLocationView;
 }
 ```
 
-### SearchResponse
+### LegacyBrandStoreLocationView
 
 ```typescript
-interface SearchResponse {
-  products: Product[];
-  total_results?: number;
-  query_id?: string;
-  processing_time_ms?: number;
+interface LegacyBrandStoreLocationView {
+  brand_id?: string | null;
+  business_name?: string | null;
+  business_type?: string | null;
+  business_categories?: BizCategory[] | null;
+  business_specialty?: string | null;
+  business_keywords?: string[] | null;
+  product_services_offered?: string[] | null;
+  brand_description?: string | null;
+  website_url?: string | null;
+  business_emails?: string[] | null;
+  business_phones?: string[] | null;
+  social_media_links?: Record<string, string[]> | null;
+  ownership_type?: BizOwnershipType | null;
+  staffs?: Staff[] | null;
+  store_name: string;
+  store_emails: string[];
+  store_phones: string[];
+  store_address?: string | null;
+  store_city?: string | null;
+  store_state?: string | null;
+  store_zipcode?: string | null;
+  store_country?: string | null;
+  coordinates?: Coordinates | null;
+  overall_rating?: number | null;
+  total_reviews?: number | null;
+  price_range?: StorePriceRange | null;
+  store_hours?: Record<string, any> | null;
+  features?: Record<string, any> | null;
+  // ... and more fields
+}
+```
+
+### SearchResponseWithCount
+
+When `estimate_total` is set to true:
+
+```typescript
+interface SearchResponseWithCount {
+  results: SearchMatch[];
+  total_count: number;
 }
 ```
 
@@ -163,7 +199,7 @@ The client provides detailed error information through the `OpenMartError` class
 
 ```typescript
 try {
-  const results = await openmart.search.products({ query: "laptop" });
+  const results = await openmart.search.execute({ query: "restaurants" });
 } catch (error) {
   if (error instanceof OpenMartError) {
     console.error("Error code:", error.code);
@@ -187,63 +223,84 @@ openmart.updateApiKey("new-api-key");
 ### Search with Multiple Filters
 
 ```typescript
-import { OpenMart } from "@openmart";
+import { OpenMart } from "openmart";
 
 const openmart = new OpenMart({
   apiKey: process.env.OPENMART_API_KEY!,
 });
 
-async function searchProducts() {
+async function searchBusinesses() {
   try {
-    // Search for electronics with specific criteria
-    const results = await openmart.search.products({
-      query: "smartphone",
-      num: 20,
-      min_seller_rating: 4.0,
-      min_product_rating: 3.5,
-      max_shipping_days: 5,
-      min_price: 200,
-      max_price: 800,
+    // Search for high-rated restaurants with contact info
+    const results = await openmart.search.execute({
+      query: "italian restaurants",
+      location: {
+        coordinates: { latitude: 40.7128, longitude: -74.006 },
+        geo_radius: 10000, // 10km radius
+      },
+      has_contact_info: true,
+      has_website: true,
+      min_overall_rating: 4.0,
+      min_total_reviews: 50,
+      limit: 100,
     });
 
-    console.log(`Found ${results.products.length} products`);
-    console.log(`Total results: ${results.total_results}`);
-    console.log(`Processing time: ${results.processing_time_ms}ms`);
+    // Process results
+    if (Array.isArray(results)) {
+      console.log(`Found ${results.length} businesses`);
 
-    // Display products
-    results.products.forEach((product) => {
-      console.log(`- ${product.title}`);
-      console.log(`  Price: $${product.price?.amount}`);
-      console.log(
-        `  Rating: ${product.rating?.rating} (${product.rating?.ratings_count} reviews)`
-      );
-      console.log(`  Seller: ${product.seller?.name}`);
-      console.log(`  URL: ${product.url}`);
-      console.log("---");
-    });
+      results.forEach((match) => {
+        const business = match.content;
+        console.log(`- ${business.business_name || business.store_name}`);
+        console.log(
+          `  Rating: ${business.overall_rating} (${business.total_reviews} reviews)`
+        );
+        console.log(
+          `  Address: ${business.store_address}, ${business.store_city}, ${business.store_state}`
+        );
+        console.log(`  Website: ${business.website_url}`);
+        console.log(`  Phone: ${business.store_phones.join(", ")}`);
+        console.log("---");
+      });
+    }
   } catch (error) {
     console.error("Search failed:", error);
   }
 }
 
-searchProducts();
+searchBusinesses();
 ```
 
-### Batch Search Operations
+### Location-Based Search
 
 ```typescript
-async function batchSearch() {
-  const searches = [
-    openmart.search.highRated("laptop", 4.5),
-    openmart.search.fastShipping("monitor", 3),
-    openmart.search.byPriceRange("keyboard", 50, 150),
-  ];
+async function searchNearby() {
+  // Search for businesses near a specific location
+  const results = await openmart.search.execute({
+    query: "auto repair shops",
+    location: {
+      coordinates: {
+        latitude: 34.0522,
+        longitude: -118.2437,
+      },
+      geo_radius: 5000, // 5km radius
+    },
+    has_contact_info: true,
+    limit: 50,
+  });
 
-  const [laptops, monitors, keyboards] = await Promise.all(searches);
+  // Extract just the business data using map
+  const businesses = (results as SearchMatch[]).map((match) => match.content);
 
-  console.log(`High-rated laptops: ${laptops.length}`);
-  console.log(`Fast-shipping monitors: ${monitors.length}`);
-  console.log(`Keyboards in price range: ${keyboards.length}`);
+  businesses.forEach((business) => {
+    const distance = calculateDistance(
+      34.0522,
+      -118.2437,
+      business.coordinates?.latitude || 0,
+      business.coordinates?.longitude || 0
+    );
+    console.log(`${business.store_name} - ${distance.toFixed(1)}km away`);
+  });
 }
 ```
 
@@ -273,4 +330,4 @@ MIT
 
 ## Support
 
-For issues, questions, or suggestions, please visit our [GitHub repository](https://github.com/999-Dev-Official/openmart).
+For issues, questions, or suggestions, please visit our [GitHub repository](https://github.com/openmart-ai/openmart-ts).

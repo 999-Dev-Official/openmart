@@ -15,7 +15,6 @@ export class OpenMart {
       headers: {
         "Content-Type": "application/json",
         "X-API-Key": config.apiKey,
-        ...config.headers,
       },
     });
 
